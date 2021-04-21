@@ -8,9 +8,8 @@ const login = ({ email, password }) => {
   return new Promise((resolve, reject) => {
     db.get(`SELECT * FROM USERS WHERE email = ?`, [email], function (err, row) {
       err && reject({ success: false, message: 'Nope' })
-      console.log(row);
-      const valid = bcrypt.compareSync(password, row.password)
 
+      const valid = bcrypt.compareSync(password.trim(), row.password.trim())
       if (valid) {
         const payload = { email }
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
@@ -39,10 +38,12 @@ const getUserInfo = email => {
 }
 
 const updatePassword = (email, password) => {
+  const digest = bcrypt.hashSync(password, 10)
+
   return new Promise((resolve, reject) => {
     db.run(`
     UPDATE users SET password = ? WHERE email = ? `,
-      [password, email],
+      [digest, email],
       function (err) {
         err && reject(err)
 

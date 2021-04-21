@@ -1,4 +1,5 @@
 const User = require('../models/User')
+const Profiler = require('../models/Profiler')
 
 const login = async (req, res, next) => {
   try { res.json(await User.login(req.body)) }
@@ -15,8 +16,14 @@ const updatePassword = async (req, res, next) => {
   catch (err) { next(err) }
 }
 
+const generateProfile = (req, res, next) => {
+  try { res.json(Profiler.generateProfile(req.requestsLeft)) }
+  catch (err) { next(err) }
+}
+
 module.exports = {
   login,
   getUserInfo,
-  updatePassword
+  updatePassword,
+  generateProfile
 }
