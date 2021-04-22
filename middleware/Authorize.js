@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken')
-const { authErrorHandler } = require('../errors')
+const { AuthError } = require('../errors')
 
 const Authorize = (req, res, next) => {
   try {
@@ -8,7 +8,7 @@ const Authorize = (req, res, next) => {
     req.userEmail = data.email
     next()
   } catch (err) {
-    next(new authErrorHandler())
+    next(new AuthError())
   }
 }
 

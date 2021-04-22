@@ -1,7 +1,8 @@
 const faker = require('faker');
+const { ParsingError } = require('../errors')
 
 class Profiler {
-  static generateProfile = requestsLeft => {
+  static generateProfile = () => {
     const profile = {
       name: faker.name.findName(),
       dob: createBirthday(),
@@ -17,9 +18,13 @@ class Profiler {
   }
 
   static convertBase64 = base64String => {
-    const buffer = new Buffer.from(base64String, 'base64');
-    const string = buffer.toString('ascii');
-    return { profile: JSON.parse(string) }
+    try {
+      const buffer = new Buffer.from(base64String, 'base64');
+      const string = buffer.toString('ascii');
+      return { profile: JSON.parse(string) }
+    } catch (err) {
+      throw (new ParsingError())
+    }
   }
 }
 

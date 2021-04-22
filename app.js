@@ -6,7 +6,7 @@ const { mainErrorHandler } = require('./errors')
 const PORT = process.env.PORT
 
 app.use(express.json())
-app.use(Routes)
+app.use('/api/v1', Routes)
 app.use(mainErrorHandler)
 
 app.listen(PORT, () => {

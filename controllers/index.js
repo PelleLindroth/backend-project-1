@@ -2,8 +2,10 @@ const User = require('../models/User')
 const Profiler = require('../models/Profiler')
 
 const login = async (req, res, next) => {
-  const user = User.create(req.body.email, req.body.password)
-  try { res.json(await user.login()) }
+  try {
+    const user = User.create(req.body.email, req.body.password)
+    res.json(await user.login())
+  }
   catch (err) { next(err) }
 }
 
