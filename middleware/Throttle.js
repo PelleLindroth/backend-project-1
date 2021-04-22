@@ -1,5 +1,5 @@
 const throttle = {}
-const { tooManyRequestsErrorHandler } = require('../errors')
+const { TooManyRequestsError } = require('../errors')
 const timeframe = 86400000
 
 const Throttle = (req, res, next) => {
@@ -19,10 +19,10 @@ const Throttle = (req, res, next) => {
 
         res.set('RateLimit-Limit', 10)
         res.set('RateLimit-Remaining', throttle[req.userEmail].requestsLeft)
-        res.set('RateLimit-Reset', throttle[req.userEmail].timestamp + timeframe)
+        res.set('RateLimit-Reset', new Date(throttle[req.userEmail].timestamp + timeframe))
 
       } else {
-        next(new tooManyRequestsErrorHandler(new Date(throttle[req.userEmail].timestamp + timeframe).toLocaleTimeString('se')))
+        next(new TooManyRequestsError(new Date(throttle[req.userEmail].timestamp + timeframe).toLocaleTimeString('se')))
       }
     } else {
       throttle[req.userEmail] = {

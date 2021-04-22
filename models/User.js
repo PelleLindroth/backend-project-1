@@ -1,9 +1,13 @@
 const db = require('../db')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const { LoginError, MissingCredentialsError } = require('../errors')
 
 class User {
   static create(email, password) {
+    if (!email || !password) {
+      throw (new MissingCredentialsError('email', 'password'))
+    }
     return new User(email, password)
   }
 
@@ -23,6 +27,10 @@ class User {
   }
 
   static async update(email, newPassword) {
+    if (!newPassword) {
+      throw (new MissingCredentialsError('newPassword'))
+    }
+
     const digest = bcrypt.hashSync(newPassword, 10)
 
     return new Promise((resolve, reject) => {
@@ -31,8 +39,8 @@ class User {
         [digest, email],
         function (err) {
           err && reject(err)
-
-          resolve({ success: true, changes: this.changes })
+          !this.changes && resolve({ success: false, message: 'Could not update password' })
+          resolve({ success: true, message: 'Password updated' })
         })
     })
   }
@@ -54,22 +62,34 @@ class User {
     })
   }
 
+  delete() {
+    return new Promise((resolve, reject) => {
+      db.run(`DELETE FROM users WHERE email = ?`, [this.email], function (err) {
+        err && reject({ success: false, error: err })
+        !this.changes && reject({ success: false, message: 'Could not delete user' })
+
+        resolve({ success: true, message: 'User safely deleted' })
+      })
+    })
+  }
+
   login() {
     return new Promise((resolve, reject) => {
       const password = this.password
       const email = this.email
 
       db.get(`SELECT * FROM USERS WHERE email = ?`, [email], function (err, row) {
-        err && reject({ success: false, message: 'Nope' })
+        if (err || !row) { reject(new LoginError()) }
+        else {
+          const valid = bcrypt.compareSync(password, row.password)
+          if (valid) {
+            const payload = { email }
+            const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
 
-        const valid = bcrypt.compareSync(password, row.password)
-        if (valid) {
-          const payload = { email }
-          const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' })
-
-          resolve({ success: true, token })
-        } else {
-          reject({ success: false, message: 'Access denied' })
+            resolve({ success: true, token })
+          } else {
+            reject(new LoginError())
+          }
         }
       })
     })
