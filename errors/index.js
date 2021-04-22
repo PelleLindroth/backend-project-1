@@ -2,11 +2,11 @@ const mainErrorHandler = (err, req, res, next) => {
   if (err.errorCode) {
     res.status(err.errorCode).json({ success: false, error: err.errorMessage })
   } else {
-    res.json({ success: false, err })
+    res.status(500).json({ success: false, err })
   }
 }
 
-class authErrorHandler extends Error {
+class AuthError extends Error {
   constructor() {
     super()
     this.errorCode = 401
@@ -14,7 +14,23 @@ class authErrorHandler extends Error {
   }
 }
 
-class tooManyRequestsErrorHandler extends Error {
+class MissingCredentialsError extends Error {
+  constructor(...params) {
+    super()
+    this.errorCode = 400
+    this.errorMessage = `Invalid request. Required: ${params.join(', ')}`
+  }
+}
+
+class LoginError extends Error {
+  constructor() {
+    super()
+    this.errorCode = 401
+    this.errorMessage = 'Login failed. Please check your email and password and try again.'
+  }
+}
+
+class TooManyRequestsError extends Error {
   constructor(timeString) {
     super()
 
@@ -23,8 +39,19 @@ class tooManyRequestsErrorHandler extends Error {
   }
 }
 
+class ParsingError extends Error {
+  constructor(timeString) {
+    super()
+    this.errorCode = 400
+    this.errorMessage = `Could not parse base64. Please check your link.`
+  }
+}
+
 module.exports = {
   mainErrorHandler,
-  authErrorHandler,
-  tooManyRequestsErrorHandler
+  AuthError,
+  MissingCredentialsError,
+  LoginError,
+  TooManyRequestsError,
+  ParsingError
 }
