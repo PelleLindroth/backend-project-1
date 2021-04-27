@@ -17,7 +17,7 @@ class User {
       SELECT * FROM users WHERE email = ?`,
         [email],
         function (err, row) {
-          err && reject({ success: false })
+          err && reject(err)
 
           !row && reject({ success: false })
 
