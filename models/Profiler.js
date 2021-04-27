@@ -14,7 +14,7 @@ class Profiler {
 
     const profile64 = Buffer.from(JSON.stringify(profile)).toString('base64')
 
-    return { profile, link: `localhost:5000/user/${profile64}` }
+    return { profile, link: `localhost:5000/api/v1/user/${profile64}` }
   }
 
   static convertBase64 = base64String => {

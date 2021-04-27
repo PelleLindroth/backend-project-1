@@ -8,19 +8,10 @@ const Throttle = (req, res, next) => {
       requestsLeft: 9,
       timestamp: Date.now()
     }
-
-    res.set('RateLimit-Limit', 10)
-    res.set('RateLimit-Remaining', throttle[req.userEmail].requestsLeft)
-    res.set('RateLimit-Reset', new Date(throttle[req.userEmail].timestamp + timeframe))
   } else {
     if (Date.now() - throttle[req.userEmail].timestamp < timeframe) {
       if (throttle[req.userEmail].requestsLeft) {
         throttle[req.userEmail].requestsLeft--
-
-        res.set('RateLimit-Limit', 10)
-        res.set('RateLimit-Remaining', throttle[req.userEmail].requestsLeft)
-        res.set('RateLimit-Reset', new Date(throttle[req.userEmail].timestamp + timeframe))
-
       } else {
         next(new TooManyRequestsError(new Date(throttle[req.userEmail].timestamp + timeframe).toLocaleTimeString('se')))
       }
@@ -31,6 +22,10 @@ const Throttle = (req, res, next) => {
       }
     }
   }
+
+  res.set('RateLimit-Limit', 10)
+  res.set('RateLimit-Remaining', throttle[req.userEmail].requestsLeft)
+  res.set('RateLimit-Reset', new Date(throttle[req.userEmail].timestamp + timeframe))
 
   next()
 }

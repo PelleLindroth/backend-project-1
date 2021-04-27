@@ -17,6 +17,6 @@ Routes.patch('/me', Authorize, Controller.updatePassword)
 Routes.get('/generate', Authorize, Throttle, Controller.generateProfile)
 
 // Generate from base64
-Routes.get('/user/:base64data', Authorize, Throttle, Controller.convertBase64)
+Routes.get('/user/:base64data', Authorize, Controller.convertBase64)
 
 module.exports = Routes
